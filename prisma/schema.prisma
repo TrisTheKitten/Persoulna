@@ -1,0 +1,309 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id                  String                @id
+  email               String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  connectedXAccounts  ConnectedXAccount[]
+  personas            Persona[]
+  writingExamples     WritingExample[]
+  recentPostSnapshots RecentXPostSnapshot[]
+  draftBatches        DraftBatch[]
+  approvedDrafts      ApprovedDraft[]
+  publishedPosts      PublishedPost[]
+  engagementSnapshots EngagementSnapshot[]
+  insightDigests      InsightDigest[]
+  emailSends          EmailSend[]
+  contentBatches      ContentBatch[]
+  contentBatchMedia   ContentBatchMedia[]
+  scheduledPosts      ScheduledPost[]
+  postizIntegrations  PostizIntegrationSnapshot[]
+  postizAnalytics     PostizAnalyticsSnapshot[]
+}
+
+model ConnectedXAccount {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  xUserId           String?
+  xUsername         String?
+  connectionStatus  String
+  availableScopes   Json
+  lastVerifiedAt    DateTime?
+  tokenExpiryStatus String
+  credentialsSource String
+  rawVerification   Json?
+  accessToken       String?
+  refreshToken      String?
+  tokenExpiresAt    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Persona {
+  id                  String       @id @default(cuid())
+  userId              String
+  version             Int
+  displayName         String
+  mainTopics          String
+  targetAudience      String
+  writingGoal         String
+  preferredTone       String
+  thingsToAvoid       String
+  preferredPostLength String
+  approvalPreference  String
+  personaMd           String
+  styleRules          Json
+  memorySummary       String?
+  status              String
+  isActive            Boolean      @default(false)
+  approvedAt          DateTime?
+  createdAt           DateTime     @default(now())
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  draftBatches        DraftBatch[]
+}
+
+model WritingExample {
+  id                 String   @id @default(cuid())
+  userId             String
+  rawText            String
+  sourceFileName     String?
+  sourceMimeType     String?
+  sourceByteSize     Int?
+  memorySyncStatus   String
+  durableMemoryItems Json?
+  skippedItems       Json?
+  memorySummary      String?
+  createdAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RecentXPostSnapshot {
+  id            String    @id @default(cuid())
+  userId        String
+  xPostId       String
+  text          String
+  createdAtX    DateTime?
+  publicMetrics Json?
+  rawXResponse  Json
+  fetchedAt     DateTime  @default(now())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, xPostId])
+}
+
+model DraftBatch {
+  id            String      @id @default(cuid())
+  userId        String
+  personaId     String
+  sourceSummary String
+  postType      String      @default("text")
+  imageDataUrls Json?
+  status        String
+  createdAt     DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  persona       Persona     @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  drafts        DraftPost[]
+}
+
+model DraftPost {
+  id                String         @id @default(cuid())
+  batchId           String
+  variantName       String
+  draftText         String
+  caption           String?
+  hashtags          Json?
+  altText           String?
+  combinedText      String?
+  styleMatchNotes   String
+  sourcePostIdsUsed Json
+  riskFlags         Json
+  status            String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  batch             DraftBatch     @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  approvedDraft     ApprovedDraft?
+}
+
+model ApprovedDraft {
+  id             String         @id @default(cuid())
+  draftId        String         @unique
+  userId         String
+  finalText      String
+  approvalStatus String
+  approvedAt     DateTime       @default(now())
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  draft          DraftPost      @relation(fields: [draftId], references: [id], onDelete: Restrict)
+  publishedPost  PublishedPost?
+}
+
+model PublishedPost {
+  id              String        @id @default(cuid())
+  approvedDraftId String        @unique
+  userId          String
+  xPostId         String?
+  finalText       String
+  rawXResponse    Json?
+  publishStatus   String
+  errorMessage    String?
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvedDraft   ApprovedDraft @relation(fields: [approvedDraftId], references: [id], onDelete: Restrict)
+}
+
+model EngagementSnapshot {
+  id                String          @id @default(cuid())
+  userId            String
+  posts             Json
+  unavailableFields Json
+  rawXResponse      Json
+  fetchedAt         DateTime        @default(now())
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  insightDigests    InsightDigest[]
+}
+
+model InsightDigest {
+  id                   String             @id @default(cuid())
+  userId               String
+  engagementSnapshotId String
+  dashboardJson        Json
+  emailSubject         String
+  emailMarkdown        String
+  evidenceStrength     String
+  status               String
+  createdAt            DateTime           @default(now())
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  engagementSnapshot   EngagementSnapshot @relation(fields: [engagementSnapshotId], references: [id], onDelete: Restrict)
+  emailSends           EmailSend[]
+}
+
+model EmailSend {
+  id                  String        @id @default(cuid())
+  userId              String
+  insightDigestId     String
+  toEmail             String
+  provider            String
+  providerMessageId   String?
+  sendStatus          String
+  sentAt              DateTime?
+  errorMessage        String?
+  rawProviderResponse Json?
+  createdAt           DateTime      @default(now())
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  insightDigest       InsightDigest @relation(fields: [insightDigestId], references: [id], onDelete: Restrict)
+}
+
+model ContentBatch {
+  id              String               @id @default(cuid())
+  userId          String
+  rawCommand      String
+  parsedCommand   Json
+  status          String
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media           ContentBatchMedia[]
+  platformBatches PlatformDraftBatch[]
+}
+
+model ContentBatchMedia {
+  id              String       @id @default(cuid())
+  userId          String
+  contentBatchId  String
+  originalName    String
+  mimeType        String
+  byteSize        Int
+  postizMediaId   String
+  postizMediaPath String
+  aiSummary       String
+  createdAt       DateTime     @default(now())
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentBatch    ContentBatch @relation(fields: [contentBatchId], references: [id], onDelete: Cascade)
+}
+
+model PlatformDraftBatch {
+  id             String          @id @default(cuid())
+  contentBatchId String
+  platform       String
+  format         String
+  requestedCount Int
+  status         String
+  createdAt      DateTime        @default(now())
+  contentBatch   ContentBatch    @relation(fields: [contentBatchId], references: [id], onDelete: Cascade)
+  drafts         PlatformDraft[]
+}
+
+model PlatformDraft {
+  id                String             @id @default(cuid())
+  platformBatchId   String
+  variantName       String
+  content           String
+  metadata          Json?
+  status            String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  platformBatch     PlatformDraftBatch @relation(fields: [platformBatchId], references: [id], onDelete: Cascade)
+  scheduledPost     ScheduledPost?
+}
+
+model ScheduledPost {
+  id               String        @id @default(cuid())
+  userId           String
+  platformDraftId  String        @unique
+  postizPostId     String?
+  postizIntegrationId String
+  platform         String
+  scheduleType     String
+  scheduledAt      DateTime?
+  status           String
+  errorMessage     String?
+  rawPostizResponse Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platformDraft    PlatformDraft @relation(fields: [platformDraftId], references: [id], onDelete: Restrict)
+}
+
+model PostizIntegrationSnapshot {
+  id                 String   @id @default(cuid())
+  userId             String
+  postizIntegrationId String  @unique
+  identifier         String
+  name               String
+  profile            String?
+  picture            String?
+  disabled           Boolean  @default(false)
+  rawResponse        Json
+  fetchedAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PostizAnalyticsSnapshot {
+  id                 String   @id @default(cuid())
+  userId             String
+  scope              String
+  scopeId            String
+  rawResponse        Json
+  fetchedAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TaskRunRecord {
+  id              String    @id @default(cuid())
+  runtime         String
+  runType         String
+  inputReference  Json
+  outputReference Json?
+  status          String
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  errorMessage    String?
+}

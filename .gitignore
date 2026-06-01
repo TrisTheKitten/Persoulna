@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+/npm-debug.log*
+/yarn-error.log*
+/yarn-debug.log*
+/pnpm-debug.log*
+
+# Next.js Build Output
+.next/
+out/
+build/
+dist/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# SQLite Database & Prisma Engine
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+/db/
+/prisma/migrations/
+/prisma/dev.db
+/prisma/dev.db-journal
+
+# TypeScript & Cache
+*.tsbuildinfo
+.eslintcache
+.turbo/
+.parcel-cache/
+
+# System Files & Editor Configs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

@@ -1,0 +1,49 @@
+{
+  "name": "persoulna",
+  "version": "1.0.0",
+  "description": "Persoulna: A webserver-based multi-platform content command center",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "lint": "eslint .",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:seed": "prisma db seed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^2.4.0",
+    "@prisma/client": "^7.8.0",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.1",
+    "dotenv": "^17.4.2",
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "resend": "^6.12.3",
+    "twitter-api-v2": "^1.29.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^16.2.6",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "prisma": "^7.8.0",
+    "tsx": "^4.22.3",
+    "typescript-eslint": "^8.59.4",
+    "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "@hono/node-server": "^1.19.13",
+    "postcss": "^8.5.15"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
