@@ -2,6 +2,8 @@
 
 Persoulna is a chat-driven content command center for one user. Type a request like `write me 3 tweets about [topic], 1 linkedin post, 1 medium article, and 1 threads post`, review and edit the per-platform drafts, then either Post Now or schedule a time. Posting and analytics flow through Postiz; creative tasks run on a native Gemini runtime.
 
+**Demo** : https://persoulna.vercel.app/
+
 ## Key Features
 
 - Chat command parser turns requests into per-platform batches (X, LinkedIn, Threads, Medium)
